@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Shopping-app';
+
+  @Input()
+  currentNavStatus = 'recipe';
+
+  onNavStatusChange(status: string){
+    this.currentNavStatus = status
+  }
 }
