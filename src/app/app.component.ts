@@ -7,11 +7,4 @@ import {Component, Input} from '@angular/core';
 })
 export class AppComponent {
   title = 'Shopping-app';
-
-  @Input()
-  currentNavStatus = 'recipe';
-
-  onNavStatusChange(status: string){
-    this.currentNavStatus = status
-  }
 }

@@ -1,12 +1,8 @@
-<app-header (navEvent)="onNavStatusChange($event)"></app-header>
+<app-header></app-header>
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <app-recipes *ngIf="currentNavStatus == 'recipe' else elseBloc"></app-recipes>
-      <ng-template #elseBloc>
-        <app-shopping-list></app-shopping-list>
-      </ng-template>
-
+      <router-outlet></router-outlet>
     </div>
   </div>
 </div>
