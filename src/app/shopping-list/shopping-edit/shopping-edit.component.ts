@@ -1,5 +1,7 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ShoppingListService} from '../shopping-list.service';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {Subscription} from 'rxjs';
 import {Ingredient} from '../../shared/ingredient.model';
 
 @Component({
@@ -7,27 +9,65 @@ import {Ingredient} from '../../shared/ingredient.model';
   templateUrl: './shopping-edit.component.html',
   styleUrls: ['./shopping-edit.component.css']
 })
-export class ShoppingEditComponent {
+export class ShoppingEditComponent implements OnInit, OnDestroy{
 
-  @ViewChild('nameInput')
-  nameInput: ElementRef
+ shoppingForm: FormGroup;
 
-  @ViewChild('amountInput')
-  amountInput: ElementRef
+ subscription: Subscription;
+ editMode = false;
+ editedItemIndex: number;
+ editedItem: Ingredient;
 
   constructor(private shoppingListService: ShoppingListService) {
   }
 
-  addClicked(){
-    const name = this.nameInput.nativeElement.value;
-    const amount = this.amountInput.nativeElement.value;
-    const ingredient = new Ingredient(name, amount);
-    this.shoppingListService.onAddEvent(ingredient)
+  ngOnInit(): void {
+    this.shoppingForm = new FormGroup( {
+      'name': new FormControl(null, Validators.required),
+      'amount': new FormControl(null, [Validators.required, Validators.pattern("^[1-9]+[0-9]*$")])
+    })
+    this.subscription = this.shoppingListService.startedEdit.subscribe(
+      (index:number) => {
+        this.onEditItem(index);
+      }
+    )
   }
-  deleteClicked(){
-
+  private onEditItem(index: number) {
+    this.editedItemIndex = index;
+    this.editMode = true;
+    this.editedItem = this.shoppingListService.getIngedientByIndex(index);
+    this.shoppingForm.get('name').setValue(this.editedItem.name);
+    this.shoppingForm.get('amount').setValue(this.editedItem.amount);
   }
-  clearClicked(){
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe()
+  }
+
+  onSubmit(){
+    if (this.shoppingForm.get('name').valid && this.shoppingForm.get('amount').valid){
+      const ingredient ={name: this.shoppingForm.value['name'],
+        amount: this.shoppingForm.value['amount']}
+      if (this.editMode){
+        this.shoppingListService.updateIngredient(this.editedItemIndex, ingredient)
+        this.editMode = false;
+      }else {
+        this.shoppingListService.onAddEvent(ingredient)
+        this.shoppingForm.reset()
+      }
+    }else{
+      this.shoppingForm.get('name').markAllAsTouched();
+      this.shoppingForm.get('amount').markAllAsTouched();
+    }
+  }
+  onDelete() {
+    if (this.editMode){
+      this.shoppingListService.delete(this.editedItemIndex);
+      this.editMode = false;
+    }
+  }
+  onReset(){
+    this.shoppingForm.reset()
+    this.editMode = false;
   }
 }

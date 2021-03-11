@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {Ingredient} from '../shared/ingredient.model';
+import { Component } from '@angular/core';
 import {ShoppingListService} from './shopping-list.service';
 
 @Component({
@@ -11,4 +10,8 @@ export class ShoppingListComponent{
 
   constructor(public shoppingListService: ShoppingListService) { }
 
+
+  onEditItem(id: number){
+    this.shoppingListService.startedEdit.next(id);
+  }
 }

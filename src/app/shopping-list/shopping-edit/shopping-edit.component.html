@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-12">
-    <form>
+    <form [formGroup]="shoppingForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <div class="col-sm-5 form-group">
           <label for="name">Name</label>
@@ -8,7 +8,9 @@
             type="text"
             id="name"
             class="form-control"
-            #nameInput>
+            formControlName="name">
+          <span *ngIf="!shoppingForm.get('name').valid && shoppingForm.get('name').touched"
+                class="error text-danger">Required</span>
         </div>
         <div class="col-sm-2 form-group">
           <label for="amount">Amount</label>
@@ -16,13 +18,15 @@
             type="number"
             id="amount"
             class="form-control"
-            #amountInput>
+            formControlName="amount">
+          <span *ngIf="!shoppingForm.get('amount').valid && shoppingForm.get('amount').touched"
+                class="error text-danger">Required</span>
         </div>
         <div class="row">
           <div class="col-xs-12">
-            <button (click)="addClicked()" class="btn bg-success" type="submit">Add</button>
-            <button (click)="deleteClicked()" class="btn btn-danger" type="button">Delete</button>
-            <button (click)="clearClicked()" class="btn btn-primary" type="button">Clear</button>
+            <button class="btn bg-success" type="submit">{{!editMode? "Add": "Edit"}}</button>
+            <button (click)="onDelete()" class="btn btn-danger" type="button">Delete</button>
+            <button (click)="onReset()" class="btn btn-primary" type="button">Clear</button>
           </div>
         </div>
       </div>
