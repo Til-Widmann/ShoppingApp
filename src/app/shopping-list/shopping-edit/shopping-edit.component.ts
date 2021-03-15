@@ -22,16 +22,21 @@ export class ShoppingEditComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.shoppingForm = new FormGroup( {
-      'name': new FormControl(null, Validators.required),
-      'amount': new FormControl(null, [Validators.required, Validators.pattern("^[1-9]+[0-9]*$")])
-    })
+    this.initForm();
     this.subscription = this.shoppingListService.startedEdit.subscribe(
       (index:number) => {
         this.onEditItem(index);
       }
     )
   }
+
+  private initForm() {
+    this.shoppingForm = new FormGroup({
+      'name': new FormControl(null, Validators.required),
+      'amount': new FormControl(null, [Validators.required, Validators.pattern('^[1-9]+[0-9]*$')])
+    });
+  }
+
   private onEditItem(index: number) {
     this.editedItemIndex = index;
     this.editMode = true;
