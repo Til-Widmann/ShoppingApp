@@ -1,32 +1,45 @@
-import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {RecipeService} from '../recipes/recipe.service';
 import {Recipe} from '../recipes/recipe.model';
-import {map} from 'rxjs/operators';
+import {exhaustMap, map, take, tap} from 'rxjs/operators';
+import {AuthService} from '../auth/auth.service';
+import {pipe} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
 
-  constructor(private http: HttpClient, private recipeService: RecipeService) { }
-
-  onSave(){
-    const body = this.recipeService.recipeList;
-    this.http.put('https://shopping-app-49280-default-rtdb.firebaseio.com/recipes.json', body)
-      .subscribe((responseBody) =>{
-        console.log(responseBody);
-      })
+  constructor(private http: HttpClient, private recipeService: RecipeService, private authService: AuthService) {
   }
-  onFetch(){
-    this.http.get<Recipe[]>('https://shopping-app-49280-default-rtdb.firebaseio.com/recipes.json')
+
+  onSave() {
+    this.authService.user.pipe(take(1)).subscribe();
+    const body = this.recipeService.recipeList;
+    this.http.put(
+      'https://shopping-app-49280-default-rtdb.firebaseio.com/recipes.json',
+      body
+    )
+      .subscribe((responseBody) => {
+        console.log(responseBody);
+      });
+  }
+
+  onFetch() {
+    return this.http.get<Recipe[]>('https://shopping-app-49280-default-rtdb.firebaseio.com/recipes.json',
+    )
       .pipe(map(responseBody => {
-        return responseBody.map(responseBody => {
-          return {...responseBody, ingredients : responseBody.ingredients ? responseBody.ingredients: []}
-        });
-      }))
-      .subscribe(responseBody => {
-        this.recipeService.setRecipes( responseBody)
-      })
+          return responseBody.map(responseBody => {
+            return {
+              ...responseBody,
+              ingredients: responseBody.ingredients ? responseBody.ingredients : []
+            };
+          });
+        }),
+        tap(responseBody => {
+          this.recipeService.setRecipes(responseBody);
+        })
+      ).subscribe()//produces memory leak workaround
   }
 }

@@ -5,9 +5,14 @@ import {RouterModule} from '@angular/router';
 import {RecipeDetailComponent} from './recipes/recipe-detail/recipe-detail.component';
 import {EmptyRecipeComponent} from './recipes/empty-recipe/empty-recipe.component';
 import {RecipeEditComponent} from './recipes/recipe-edit/recipe-edit.component';
+import {AuthComponent} from './auth/auth.component';
+import {AuthGuardService} from './auth/auth-guard.service';
 
 const appRoutes = [
-  {path: 'recipes', component: RecipesComponent, children: [
+  {path: 'recipes',
+    component: RecipesComponent,
+    canActivate: [AuthGuardService],
+    children: [
       {path: '', component: EmptyRecipeComponent},
       {path: 'new', component: RecipeEditComponent},
       {path: ':id', component: RecipeDetailComponent,},
@@ -15,6 +20,7 @@ const appRoutes = [
     ]  },
   { path: 'shopping', component: ShoppingListComponent},
   { path: '',  redirectTo: '/recipes', pathMatch: 'full'},
+  { path: 'auth', component: AuthComponent}
 ]
 
 @NgModule({
